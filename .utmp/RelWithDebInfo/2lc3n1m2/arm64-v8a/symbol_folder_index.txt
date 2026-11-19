@@ -1,0 +1,1 @@
+C:\Users\Matheus\Desktop\Projetos\PousoLua\Library\Bee\Android\Prj\IL2CPP\Gradle\unityLibrary\build\intermediates\cxx\RelWithDebInfo\2lc3n1m2\obj\arm64-v8a
