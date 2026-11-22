@@ -59,6 +59,7 @@ namespace PousoLua
 
         Grabbable held;
         Grabbable hovered;
+        VRInteractable hoveredButton;
         Rigidbody heldBody;
 
         bool savedUseGravity;
@@ -96,8 +97,14 @@ namespace PousoLua
             if (held == null)
             {
                 UpdateHover();
-                if (hovered != null && VRInput.GrabPressed)
+                if (hoveredButton != null && VRInput.GrabPressed)
+                {
+                    hoveredButton.Interact();
+                }
+                else if (hovered != null && VRInput.GrabPressed)
+                {
                     Grab(hovered);
+                }
             }
             else
             {
@@ -180,14 +187,17 @@ namespace PousoLua
         void UpdateHover()
         {
             Grabbable found = null;
+            VRInteractable foundButton = null;
             var ray = new Ray(head.position, head.forward);
             float maxSearchDist = maxGrabDistance;
 
             // 1) Raio central direto (preciso)
             if (Physics.Raycast(ray, out RaycastHit directHit, maxGrabDistance, grabLayers, QueryTriggerInteraction.Ignore))
             {
-                found = FindValidGrabbable(directHit.collider);
-                if (found == null)
+                foundButton = directHit.collider.GetComponentInParent<VRInteractable>();
+                if (foundButton == null)
+                    found = FindValidGrabbable(directHit.collider);
+                if (found == null && foundButton == null)
                 {
                     // Bateu no terreno/parede: limita a busca em cone até um pouco além do ponto de impacto
                     maxSearchDist = Mathf.Min(maxGrabDistance, directHit.distance + 0.35f);
@@ -218,6 +228,13 @@ namespace PousoLua
                         found = candidate;
                     }
                 }
+            }
+
+            if (foundButton != hoveredButton)
+            {
+                if (hoveredButton != null) hoveredButton.SetHighlighted(false);
+                hoveredButton = foundButton;
+                if (hoveredButton != null) hoveredButton.SetHighlighted(true);
             }
 
             SetHovered(found);

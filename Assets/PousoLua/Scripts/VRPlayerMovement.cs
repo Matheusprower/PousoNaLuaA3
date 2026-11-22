@@ -48,6 +48,11 @@ namespace PousoLua
         [Tooltip("Aplica a mesma gravidade ao motor de física (pedras e objetos caem com gravidade lunar).")]
         public bool applyGravityToPhysics = true;
         public float maxFallSpeed = 20f;
+        [Header("Pulo e Agachar")]
+        [Tooltip("Força do pulo (m/s). Na Lua, valores entre 2.5 e 3.5 dão pulos altos.")]
+        public float jumpSpeed = 2.8f;
+        [Tooltip("Altura dos olhos quando agachado (m).")]
+        public float crouchEyeHeight = 0.9f;
 
         [Header("Corpo / Câmera")]
         [Tooltip("Altura dos olhos em relação aos pés (m).")]
@@ -80,9 +85,12 @@ namespace PousoLua
         float smoothedY, smoothedYVelocity;
         bool smoothInitialized;
         float editorPitch;
+        float standingEyeHeight;
+        bool isCrouching;
 
         void Awake()
         {
+            standingEyeHeight = eyeHeight;
             cc = GetComponent<CharacterController>();
             ResolveReferences();
             ConfigureController();
@@ -93,7 +101,7 @@ namespace PousoLua
 
         void Start()
         {
-            SnapToGroundImmediate();
+            //SnapToGroundImmediate();
             smoothedY = transform.position.y;
             smoothInitialized = true;
             IsGrounded = true;
@@ -252,6 +260,11 @@ namespace PousoLua
                     motion = alongGround * speed * (1f - uphillSlowdown * uphill);
                 }
                 verticalVelocity = -1.5f; // força contínua leve para manter contato com o relevo
+                if (VRInput.JumpPressed)
+                {
+                    verticalVelocity = jumpSpeed;
+                    IsGrounded = false;
+                }
             }
             else
             {
@@ -431,6 +444,16 @@ namespace PousoLua
             editorPitch = Mathf.Clamp(editorPitch - d.y, -85f, 85f);
             cameraOffset.localRotation = Quaternion.Euler(editorPitch, 0f, 0f);
 #endif
+        }
+
+        void HandleCrouch()
+        {
+            bool wantCrouch = VRInput.CrouchHeld;
+            if (wantCrouch == isCrouching) return;
+
+            isCrouching = wantCrouch;
+            eyeHeight = isCrouching ? crouchEyeHeight : standingEyeHeight;
+            ConfigureController();
         }
     }
 }
