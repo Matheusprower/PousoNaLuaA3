@@ -249,5 +249,46 @@ namespace PousoLua
                 return Vector2.zero;
             }
         }
+
+        /// <summary>Botão para PULAR (Espaço no teclado ou botão Sul/A no controle).</summary>
+        public static bool JumpPressed
+        {
+            get
+            {
+                var gamepads = Gamepad.all;
+                for (int i = 0; i < gamepads.Count; i++)
+                {
+                    if (gamepads[i].buttonSouth.wasPressedThisFrame)
+                        return true;
+                }
+
+                var kb = Keyboard.current;
+                if (kb != null && kb.spaceKey.wasPressedThisFrame)
+                    return true;
+
+                return false;
+            }
+        }
+
+        /// <summary>Segurar para AGACHAR (Ctrl esquerdo ou C no teclado, ou botão L3/B no controle).</summary>
+        public static bool CrouchHeld
+        {
+            get
+            {
+                var gamepads = Gamepad.all;
+                for (int i = 0; i < gamepads.Count; i++)
+                {
+                    if (gamepads[i].leftStickButton.isPressed || gamepads[i].buttonEast.isPressed)
+                        return true;
+                }
+
+                var kb = Keyboard.current;
+                if (kb != null && (kb.leftCtrlKey.isPressed || kb.cKey.isPressed))
+                    return true;
+
+                return false;
+            }
+        }
     }
+
 }

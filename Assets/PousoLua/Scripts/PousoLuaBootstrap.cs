@@ -53,7 +53,7 @@ namespace PousoLua
 
             movement.ResolveReferences();
             movement.ConfigureController();
-            movement.SnapToGroundImmediate();
+            //movement.SnapToGroundImmediate();
 
             var grabber = cam.GetComponent<VRObjectGrabber>();
             if (grabber == null)
